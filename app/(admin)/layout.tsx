@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { logout } from "@/lib/auth/actions";
 import { requireOperator } from "@/lib/auth/dal";
@@ -12,7 +14,15 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="flex items-center justify-between border-b px-6 py-3">
-        <span className="text-sm font-semibold">Playground Admin</span>
+        <nav className="flex items-center gap-4 text-sm">
+          <span className="font-semibold">Playground Admin</span>
+          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
+            대시보드
+          </Link>
+          <Link href="/operators" className="text-muted-foreground hover:text-foreground">
+            운영자
+          </Link>
+        </nav>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-muted-foreground">
             {operator.name}

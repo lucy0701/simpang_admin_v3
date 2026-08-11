@@ -16,7 +16,8 @@ import { publicSupabaseConfig } from "@/lib/supabase/env";
  * 돌기 때문이다. 실제 인가 판단은 lib/auth/dal.ts 에서 한다.
  */
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+// /invite 는 아직 계정이 없는 사람이 여는 링크라 반드시 열려 있어야 한다.
+const PUBLIC_PATHS = ["/login", "/auth", "/invite"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some(
