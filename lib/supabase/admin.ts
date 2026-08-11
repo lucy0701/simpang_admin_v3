@@ -3,6 +3,7 @@ import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "./database.types";
+import { publicSupabaseConfig } from "./env";
 
 /**
  * service_role 클라이언트 — RLS 를 우회한다.
@@ -18,12 +19,13 @@ let cached: ReturnType<typeof createClient<Database>> | undefined;
 export function createAdminClient() {
   if (cached) return cached;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // URL 검증은 publicSupabaseConfig 에 모아둔다.
+  const { url } = publicSupabaseConfig();
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!url || !serviceRoleKey) {
+  if (!serviceRoleKey) {
     throw new Error(
-      "환경변수 NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 가 필요합니다.",
+      "환경변수 SUPABASE_SERVICE_ROLE_KEY 가 없습니다. Supabase 대시보드 > Project Settings > API 에서 확인해 .env.local 에 채워주세요.",
     );
   }
 
