@@ -4,6 +4,8 @@ import { randomBytes } from "node:crypto";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import { recordAudit } from "./audit";
+
 /**
  * 운영자 초대. 스키마의 operator_invite 를 그대로 쓴다.
  *
@@ -60,7 +62,10 @@ export async function createInvite(params: {
   email: string;
   roleId: number | null;
   invitedBy: string;
-}): Promise<{ token: string } | { error: InviteError; message: string }> {
+}): Promise<
+  | { token: string; inviteId: number; email: string }
+  | { error: InviteError; message: string }
+> {
   const admin = createAdminClient();
   const email = params.email.trim().toLowerCase();
 
@@ -83,20 +88,24 @@ export async function createInvite(params: {
     .eq("status", "pending");
 
   const token = randomBytes(32).toString("base64url");
-  const { error } = await admin.from("operator_invite").insert({
-    email,
-    role_id: params.roleId,
-    invited_by: params.invitedBy,
-    token,
-    status: "pending",
-    expires_at: new Date(Date.now() + INVITE_TTL_MS).toISOString(),
-  });
+  const { data, error } = await admin
+    .from("operator_invite")
+    .insert({
+      email,
+      role_id: params.roleId,
+      invited_by: params.invitedBy,
+      token,
+      status: "pending",
+      expires_at: new Date(Date.now() + INVITE_TTL_MS).toISOString(),
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    return { error: "unknown", message: error.message };
+  if (error || !data) {
+    return { error: "unknown", message: error?.message ?? "초대를 만들지 못했습니다." };
   }
 
-  return { token };
+  return { token, inviteId: data.id as number, email };
 }
 
 /** 대기 중인 초대 목록. 만료된 것은 상태를 정리한 뒤 제외한다. */
@@ -129,13 +138,17 @@ export async function listPendingInvites(): Promise<PendingInvite[]> {
   }));
 }
 
-export async function revokeInvite(inviteId: number): Promise<void> {
+/** 취소된 초대의 이메일을 돌려준다 (감사 로그에 남기기 위해). */
+export async function revokeInvite(inviteId: number): Promise<string | null> {
   const admin = createAdminClient();
-  await admin
+  const { data } = await admin
     .from("operator_invite")
     .update({ status: "expired" })
     .eq("id", inviteId)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .select("email");
+
+  return (data?.[0]?.email as string | undefined) ?? null;
 }
 
 /** 수락 페이지 진입 시 토큰 검증. 상태별로 구분된 사유를 돌려준다. */
@@ -233,20 +246,38 @@ export async function acceptInvite(params: {
     };
   }
 
-  const { error: operatorError } = await admin.from("operator").insert({
-    auth_user_id: created.user.id,
-    name: params.name,
-    email: invite.email,
-    role_id: invite.roleId,
-    status: "active",
-  });
+  const { data: operatorRow, error: operatorError } = await admin
+    .from("operator")
+    .insert({
+      auth_user_id: created.user.id,
+      name: params.name,
+      email: invite.email,
+      role_id: invite.roleId,
+      status: "active",
+    })
+    .select("id")
+    .single();
 
-  if (operatorError) {
+  if (operatorError || !operatorRow) {
     // 운영자 레코드가 없으면 로그인해도 접근이 막히므로 auth 사용자까지 되돌린다.
     await admin.auth.admin.deleteUser(created.user.id);
     await revert();
-    return { error: "unknown", message: operatorError.message };
+    return {
+      error: "unknown",
+      message: operatorError?.message ?? "운영자 등록에 실패했습니다.",
+    };
   }
+
+  await recordAudit({
+    // 초대를 수락한 본인이 행위자다. 아직 세션이 없으므로 방금 만든 id 를 쓴다.
+    operatorId: operatorRow.id as string,
+    action: "operator.create",
+    targetType: "operator",
+    targetId: operatorRow.id as string,
+    detail: `초대 수락으로 운영자 생성: ${invite.email}${
+      invite.roleName ? ` (${invite.roleName})` : ""
+    }`,
+  });
 
   return { email: invite.email };
 }

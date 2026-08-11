@@ -79,43 +79,157 @@ export const requireOperator = cache(async (): Promise<Operator> => {
   return operator;
 });
 
+export type PermissionEffect =
+  | "allow"
+  | "deny"
+  | "approval_required"
+  | "extra_grant";
+
 /**
- * 현재 운영자의 role 에 `allow` 로 걸린 권한 코드 집합.
- * approval_required / extra_grant 는 별도 플로우(approval_request,
- * pii_access_grant)로 처리해야 하므로 여기서는 제외한다.
+ * 권한 판정 결과.
+ *
+ * 왜 boolean 이 아닌가: 스키마의 role_permission.effect 는 4-state 다.
+ * "안 된다" 안에 세 가지 다른 상황이 섞여 있고, 화면에서 안내가 달라져야 한다.
+ *   deny              → 역할 자체에 없는 권한. 할 수 있는 게 없다
+ *   approval_required → 승인 요청을 올리면 된다 (approval_request)
+ *   extra_grant       → 별도 권한을 부여받으면 된다 (pii_access_grant)
  */
-export const getPermissionCodes = cache(async (): Promise<Set<string>> => {
+export type PermissionCheck =
+  | { allowed: true; via: "role" | "approval" | "grant" }
+  | { allowed: false; effect: PermissionEffect; reason: string };
+
+/** 현재 운영자 역할의 권한코드 → effect 매핑. */
+export const getRolePermissions = cache(
+  async (): Promise<Map<string, PermissionEffect>> => {
+    const operator = await getOperator();
+    if (!operator?.role) return new Map();
+
+    const admin = createAdminClient();
+    const { data, error } = await admin
+      .from("role_permission")
+      .select("effect, permission:permission_id (code)")
+      .eq("role_id", operator.role.id);
+
+    if (error || !data) return new Map();
+
+    const entries = data.flatMap((row) => {
+      const permission = Array.isArray(row.permission)
+        ? row.permission[0]
+        : row.permission;
+      if (!permission?.code) return [];
+      return [[permission.code as string, row.effect as PermissionEffect]] as const;
+    });
+
+    return new Map(entries);
+  },
+);
+
+/** 유효한 개인정보 열람 권한(pii_access_grant)이 있는지. */
+const hasActivePiiGrant = cache(async (): Promise<boolean> => {
   const operator = await getOperator();
-  if (!operator?.role) return new Set();
+  if (!operator) return false;
 
   const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("role_permission")
-    .select("effect, permission:permission_id (code)")
-    .eq("role_id", operator.role.id)
-    .eq("effect", "allow");
+  const { data } = await admin
+    .from("pii_access_grant")
+    .select("id")
+    .eq("operator_id", operator.id)
+    .eq("status", "active")
+    .gt("expires_at", new Date().toISOString())
+    .limit(1);
 
-  if (error || !data) return new Set();
-
-  const codes = data.flatMap((row) => {
-    const permission = Array.isArray(row.permission)
-      ? row.permission[0]
-      : row.permission;
-    return permission?.code ? [permission.code as string] : [];
-  });
-
-  return new Set(codes);
+  return (data?.length ?? 0) > 0;
 });
 
-/** 권한 체크. 예: `await can("content.publish")` */
-export async function can(permissionCode: string): Promise<boolean> {
-  const codes = await getPermissionCodes();
-  return codes.has(permissionCode);
+/**
+ * 해당 액션에 대해 승인된 요청이 있는지.
+ *
+ * approval_required 는 역할에 붙는 상시 권한이 아니라 건별 승인이다.
+ * 그래서 대상(target)이 있으면 그 대상까지 일치해야 한다.
+ */
+async function hasApproval(
+  actionType: string,
+  target?: { type: string; id: string },
+): Promise<boolean> {
+  const operator = await getOperator();
+  if (!operator) return false;
+
+  const admin = createAdminClient();
+  let query = admin
+    .from("approval_request")
+    .select("id")
+    .eq("requester_id", operator.id)
+    .eq("action_type", actionType)
+    .eq("status", "approved");
+
+  if (target) {
+    query = query.eq("target_type", target.type).eq("target_id", target.id);
+  }
+
+  const { data } = await query.limit(1);
+  return (data?.length ?? 0) > 0;
 }
 
-/** 권한이 없으면 로그인/대시보드로 튕기는 대신 명시적으로 실패시킨다. */
-export async function requirePermission(permissionCode: string): Promise<void> {
-  if (!(await can(permissionCode))) {
-    throw new Error(`권한이 없습니다: ${permissionCode}`);
+/**
+ * 4-state 권한 판정.
+ *
+ * 주의: extra_grant 는 pii_access_grant 로만 확인한다. 스키마에 범용 권한부여
+ * 테이블이 없고 개인정보 열람 전용 테이블만 있기 때문이다. pii.view 외의 권한에
+ * extra_grant 를 걸면 부여할 수단이 없어 사실상 deny 로 동작한다.
+ */
+export async function checkPermission(
+  permissionCode: string,
+  target?: { type: string; id: string },
+): Promise<PermissionCheck> {
+  const effect =
+    (await getRolePermissions()).get(permissionCode) ?? "deny";
+
+  switch (effect) {
+    case "allow":
+      return { allowed: true, via: "role" };
+
+    case "approval_required":
+      return (await hasApproval(permissionCode, target))
+        ? { allowed: true, via: "approval" }
+        : {
+            allowed: false,
+            effect,
+            reason: "승인이 필요한 작업입니다. 승인 요청 후 다시 시도하세요.",
+          };
+
+    case "extra_grant":
+      return (await hasActivePiiGrant())
+        ? { allowed: true, via: "grant" }
+        : {
+            allowed: false,
+            effect,
+            reason: "별도 권한 부여가 필요한 작업입니다.",
+          };
+
+    default:
+      return {
+        allowed: false,
+        effect: "deny",
+        reason: "이 작업에 대한 권한이 없습니다.",
+      };
+  }
+}
+
+/** 권한 체크. 예: `await can("content.publish")` */
+export async function can(
+  permissionCode: string,
+  target?: { type: string; id: string },
+): Promise<boolean> {
+  return (await checkPermission(permissionCode, target)).allowed;
+}
+
+/** 권한이 없으면 사유를 담아 실패시킨다. */
+export async function requirePermission(
+  permissionCode: string,
+  target?: { type: string; id: string },
+): Promise<void> {
+  const result = await checkPermission(permissionCode, target);
+  if (!result.allowed) {
+    throw new Error(result.reason);
   }
 }

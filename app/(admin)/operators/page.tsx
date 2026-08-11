@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { requireOperator } from "@/lib/auth/dal";
+import { checkPermission, requireOperator } from "@/lib/auth/dal";
 import { listPendingInvites, listRoles } from "@/lib/auth/invite";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -49,7 +50,8 @@ function formatDate(value: string) {
 export default async function OperatorsPage() {
   await requireOperator();
 
-  const [roles, operators, invites] = await Promise.all([
+  const [canInvite, roles, operators, invites] = await Promise.all([
+    checkPermission("operator.invite"),
     listRoles(),
     listOperators(),
     listPendingInvites(),
@@ -68,7 +70,12 @@ export default async function OperatorsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {roles.length === 0 ? (
+          {!canInvite.allowed ? (
+            <Alert>
+              <AlertTitle>초대 권한이 없습니다</AlertTitle>
+              <AlertDescription>{canInvite.reason}</AlertDescription>
+            </Alert>
+          ) : roles.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               역할이 없습니다. Supabase 의 <code className="font-mono">role</code> ·{" "}
               <code className="font-mono">permission</code> 테이블에 데이터를 먼저
@@ -111,16 +118,18 @@ export default async function OperatorsPage() {
                       {formatDate(invite.expiresAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <form action={revoke}>
-                        <input
-                          type="hidden"
-                          name="inviteId"
-                          value={invite.id}
-                        />
-                        <Button type="submit" variant="ghost" size="sm">
-                          취소
-                        </Button>
-                      </form>
+                      {canInvite.allowed ? (
+                        <form action={revoke}>
+                          <input
+                            type="hidden"
+                            name="inviteId"
+                            value={invite.id}
+                          />
+                          <Button type="submit" variant="ghost" size="sm">
+                            취소
+                          </Button>
+                        </form>
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}
