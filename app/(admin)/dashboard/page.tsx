@@ -10,21 +10,21 @@ export default async function DashboardPage() {
 
       <dl className="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt className="opacity-60">운영자</dt>
+          <dt className="text-muted-foreground">운영자</dt>
           <dd>
             {operator.name} ({operator.email})
           </dd>
         </div>
         <div>
-          <dt className="opacity-60">역할</dt>
+          <dt className="text-muted-foreground">역할</dt>
           <dd>{operator.role ? `${operator.role.name} (${operator.role.code})` : "미지정"}</dd>
         </div>
       </dl>
 
       <section>
-        <h2 className="mb-2 text-sm font-medium opacity-60">허용된 권한</h2>
+        <h2 className="mb-2 text-sm font-medium text-muted-foreground">허용된 권한</h2>
         {permissions.size === 0 ? (
-          <p className="text-sm opacity-60">
+          <p className="text-sm text-muted-foreground">
             부여된 권한이 없습니다. role_permission 테이블을 확인하세요.
           </p>
         ) : (
@@ -32,7 +32,7 @@ export default async function DashboardPage() {
             {[...permissions].sort().map((code) => (
               <li
                 key={code}
-                className="rounded-full border border-black/15 px-3 py-1 text-xs dark:border-white/20"
+                className="rounded-full border px-3 py-1 text-xs"
               >
                 {code}
               </li>
