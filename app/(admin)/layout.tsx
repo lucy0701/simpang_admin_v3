@@ -29,10 +29,12 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
       items: [
         { href: "/dashboard", label: "대시보드", icon: "dashboard" },
         {
-          href: "/contents",
+          // 자체 화면이 없는 묶음이라 href 를 두지 않는다. 누르면 이동하지
+          // 않고 하위 목록만 열고 닫힌다. 실제 이동은 하위 항목에서.
           label: "콘텐츠",
           icon: "content",
           children: [
+            { href: "/contents", label: "전체 보기" },
             // 지금 만들 수 있는 건 MBTI 뿐이다. content.content_type 의
             // 'psychotest' 가 이것에 해당한다 (enum 값은 스키마 그대로 둔다).
             { href: "/contents/mbti", label: "MBTI" },

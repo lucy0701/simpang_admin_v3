@@ -126,6 +126,15 @@ function NavEntry({
    */
   const inSection = sectionOpen(pathname, item);
 
+  /*
+   * 하위 항목 중 "현재 위치"는 하나여야 한다.
+   * /contents 와 /contents/mbti 처럼 한쪽이 다른 쪽의 상위 경로면 둘 다
+   * 일치해버리므로, 가장 구체적인(경로가 긴) 것만 남긴다.
+   */
+  const activeChildHref = item.children
+    ?.filter((child) => isActive(pathname, child.href))
+    .sort((a, b) => (b.href?.length ?? 0) - (a.href?.length ?? 0))[0]?.href;
+
   const inner = (
     <>
       <span className="flex min-w-0 items-center gap-2.5">
@@ -251,7 +260,8 @@ function NavEntry({
             className="flex flex-col gap-0.5 overflow-hidden"
           >
             {item.children.map((child) => {
-              const childActive = isActive(pathname, child.href);
+              const childActive =
+                Boolean(child.href) && child.href === activeChildHref;
 
               const label = (
                 <span className="flex items-center gap-2">
