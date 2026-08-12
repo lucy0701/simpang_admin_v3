@@ -1,6 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+  useReducedMotion,
+} from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -137,7 +142,9 @@ function NavEntry({
             aria-hidden
             animate={{ rotate: open ? 180 : 0 }}
             transition={
-              reduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }
+              reduceMotion
+                ? { duration: 0 }
+                : { duration: 0.2, ease: "easeOut" }
             }
             className="flex"
           >
@@ -147,6 +154,37 @@ function NavEntry({
       </span>
     </>
   );
+
+  /*
+   * 강조 배경을 항목마다 따로 켜고 끄면 선택이 바뀔 때 뚝 끊긴다.
+   * layoutId 로 하나의 요소를 공유해 항목 사이를 미끄러지게 한다.
+   * 사이드바에서 강조되는 항목은 언제나 하나뿐이라 id 하나로 충분하다.
+   */
+  const pill = inSection ? (
+    <motion.span
+      layoutId="nav-pill"
+      aria-hidden
+      className="absolute inset-0 rounded-lg bg-foreground"
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : { type: "spring", stiffness: 520, damping: 42, mass: 0.6 }
+      }
+    />
+  ) : null;
+
+  // 글자색 전환은 배경이 미끄러지는 시간과 맞춘다. 어긋나면 이동 중에 글자가
+  // 배경과 같은 색이 되는 순간이 생긴다.
+  const rowClass = cn(
+    "relative flex h-9.5 w-full items-center justify-between rounded-lg px-3 text-sm transition-colors duration-200",
+    inSection ? "font-medium text-background" : "hover:bg-accent"
+  );
+
+  const hover = reduceMotion ? undefined : { x: 2 };
+  const tap = reduceMotion ? undefined : { scale: 0.985 };
+  const rowMotion = {
+    transition: { type: "spring" as const, stiffness: 600, damping: 40 },
+  };
 
   return (
     <>
@@ -159,32 +197,33 @@ function NavEntry({
           {inner}
         </span>
       ) : toggleOnly ? (
-        <button
+        <motion.button
           type="button"
           onClick={onToggle}
           aria-expanded={open}
-          className={cn(
-            "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
-            inSection
-              ? "bg-foreground font-medium text-background"
-              : "hover:bg-accent"
-          )}
+          whileHover={hover}
+          whileTap={tap}
+          {...rowMotion}
+          className={rowClass}
         >
-          {inner}
-        </button>
+          {pill}
+          <span className="relative flex w-full items-center justify-between">
+            {inner}
+          </span>
+        </motion.button>
       ) : (
-        <Link
-          href={item.href!}
-          aria-current={active ? "page" : undefined}
-          className={cn(
-            "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
-            inSection
-              ? "bg-foreground font-medium text-background"
-              : "hover:bg-accent"
-          )}
-        >
-          {inner}
-        </Link>
+        <motion.div whileHover={hover} whileTap={tap} {...rowMotion}>
+          <Link
+            href={item.href!}
+            aria-current={active ? "page" : undefined}
+            className={rowClass}
+          >
+            {pill}
+            <span className="relative flex w-full items-center justify-between">
+              {inner}
+            </span>
+          </Link>
+        </motion.div>
       )}
 
       <AnimatePresence initial={false}>
@@ -199,7 +238,12 @@ function NavEntry({
                 ? { duration: 0 }
                 : // 높이는 스프링으로 밀고 투명도는 짧게 끊어 잔상을 줄인다.
                   {
-                    height: { type: "spring", stiffness: 420, damping: 36, mass: 0.7 },
+                    height: {
+                      type: "spring",
+                      stiffness: 420,
+                      damping: 36,
+                      mass: 0.7,
+                    },
                     opacity: { duration: 0.15 },
                   }
             }
@@ -207,50 +251,54 @@ function NavEntry({
             className="flex flex-col gap-0.5 overflow-hidden"
           >
             {item.children.map((child) => {
-            const childActive = isActive(pathname, child.href);
+              const childActive = isActive(pathname, child.href);
 
-            const label = (
-              <span className="flex items-center gap-2">
-                {/* <span aria-hidden className="text-[10px] leading-none">
-                  ●
-                </span> */}
-                {/*
+              const label = (
+                <span className="flex items-center gap-2">
+                  {childActive && (
+                    <span
+                      aria-hidden
+                      className="text-[10px] leading-none text-primary"
+                    >
+                      ●
+                    </span>
+                  )}
+                  {/*
                   상위 항목은 검은 반전으로 현재 위치를 알린다. 하위까지 같은
                   방식을 쓰면 어디에 있는지 헷갈려서 굵기와 밑줄로 구분한다.
-                */}
-                <span
-                  className={cn(
-                    "border-b-3 pb-0.5",
-                    childActive ? "border-primary" : "border-transparent"
-                  )}
-                >
-                  {child.label}
+                  */}
+                  <span className={"pb-0.5"}>{child.label}</span>
                 </span>
-              </span>
-            );
+              );
 
-            return child.disabled ? (
-              <span
-                key={child.label}
-                aria-disabled
-                title="아직 만들지 않은 화면입니다"
-                className="flex h-8.5 cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
-              >
-                {label}
-              </span>
-            ) : (
-              <Link
-                key={child.label}
-                href={child.href!}
-                aria-current={childActive ? "page" : undefined}
-                className={cn(
-                  "flex h-8.5 items-center rounded-lg pl-6 text-sm transition-colors hover:bg-accent",
-                  childActive ? "font-semibold" : "text-muted-foreground"
-                )}
-              >
-                {label}
-              </Link>
-            );
+              return child.disabled ? (
+                <span
+                  key={child.label}
+                  aria-disabled
+                  title="아직 만들지 않은 화면입니다"
+                  className="flex h-8.5 cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
+                >
+                  {label}
+                </span>
+              ) : (
+                <motion.div
+                  key={child.label}
+                  whileHover={hover}
+                  whileTap={tap}
+                  {...rowMotion}
+                >
+                  <Link
+                    href={child.href!}
+                    aria-current={childActive ? "page" : undefined}
+                    className={cn(
+                      "flex h-8.5 items-center rounded-lg pl-6 text-sm transition-colors duration-200 hover:bg-accent",
+                      childActive ? "font-semibold" : "text-muted-foreground"
+                    )}
+                  >
+                    {label}
+                  </Link>
+                </motion.div>
+              );
             })}
           </motion.div>
         ) : null}
@@ -301,29 +349,40 @@ export function Sidebar({
         붙이면, 하위 항목이 펼쳐질 때 아래를 밀지 않고 위로 자란다.
         항목이 많아 넘치면 이 영역만 스크롤된다.
       */}
-      <nav className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto py-6">
-        {groups.map((group, index) => (
-          <div
-            key={index}
-            className={cn(
-              "flex flex-col gap-0.5",
-              index === groups.length - 1 && groups.length > 1
-                ? "mt-auto border-t pt-4"
-                : null
-            )}
-          >
-            {group.items.map((item) => (
-              <NavEntry
-                key={item.label}
-                item={item}
-                pathname={pathname}
-                open={isOpen(item)}
-                onToggle={() => toggle(item)}
-              />
-            ))}
-          </div>
-        ))}
-      </nav>
+      {/*
+        layoutScroll: 스크롤되는 조상이 있으면 framer 가 위치를 잘못 재서
+        강조 배경이 엉뚱한 곳으로 튄다.
+        LayoutGroup: layoutId 를 공유하는 항목들이 서로 다른 컴포넌트에
+        흩어져 있어 같은 그룹으로 묶어줘야 이동으로 인식한다.
+      */}
+      <motion.nav
+        layoutScroll
+        className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto py-6"
+      >
+        <LayoutGroup>
+          {groups.map((group, index) => (
+            <div
+              key={index}
+              className={cn(
+                "flex flex-col gap-0.5",
+                index === groups.length - 1 && groups.length > 1
+                  ? "mt-auto border-t pt-4"
+                  : null
+              )}
+            >
+              {group.items.map((item) => (
+                <NavEntry
+                  key={item.label}
+                  item={item}
+                  pathname={pathname}
+                  open={isOpen(item)}
+                  onToggle={() => toggle(item)}
+                />
+              ))}
+            </div>
+          ))}
+        </LayoutGroup>
+      </motion.nav>
 
       {/* 네임카드는 스크롤 영역 밖이라 항상 화면 맨 아래에 남는다. */}
       <div className="flex shrink-0 items-center gap-2.5 rounded-xl bg-muted p-2.5">
