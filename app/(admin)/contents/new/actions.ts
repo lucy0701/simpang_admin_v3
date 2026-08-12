@@ -67,7 +67,7 @@ export async function createContent(
     action: "content.create",
     targetType: "content",
     targetId: result.contentId,
-    detail: `심리테스트 등록: ${input.title} (문항 ${input.questions.length} · 결과 유형 ${input.resultTypes.length} · ${input.status})`,
+    detail: `MBTI 등록: ${input.title} (문항 ${input.questions.length} · 결과 유형 ${input.resultTypes.length} · ${input.status})`,
   });
 
   revalidatePath("/contents");

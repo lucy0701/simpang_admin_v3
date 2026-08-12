@@ -189,7 +189,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b-[3px] px-5 py-3.5">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <span className="shrink-0 text-[13px] text-muted-foreground">
-              콘텐츠 › 심리테스트 ›
+              콘텐츠 › MBTI ›
             </span>
             <Input
               value={title}

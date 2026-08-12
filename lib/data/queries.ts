@@ -38,7 +38,8 @@ function startOfToday(): string {
 /* ---------------------------------- 콘텐츠 --------------------------------- */
 
 export const CONTENT_TYPE_LABEL: Record<string, string> = {
-  psychotest: "심리테스트",
+  // DB enum 값은 스키마의 psychotest 그대로 두고 표시 이름만 MBTI 로 쓴다.
+  psychotest: "MBTI",
   minigame: "미니게임",
   multigame: "멀티게임",
 };

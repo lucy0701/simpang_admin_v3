@@ -28,11 +28,20 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
     {
       items: [
         { href: "/dashboard", label: "대시보드" },
-        { href: "/contents", label: "콘텐츠" },
+        {
+          href: "/contents",
+          label: "콘텐츠",
+          children: [
+            // 지금 만들 수 있는 건 MBTI 뿐이다. content.content_type 의
+            // 'psychotest' 가 이것에 해당한다 (enum 값은 스키마 그대로 둔다).
+            { href: "/contents", label: "MBTI" },
+            { href: "/contents/minigame", label: "미니게임", disabled: true },
+            { href: "/contents/multigame", label: "멀티게임", disabled: true },
+          ],
+        },
         { href: "/members", label: "회원" },
         { href: "/comments", label: "댓글 · 신고", badge: pendingReports },
-        // 스키마에 대응 테이블이 없어 아직 만들 수 없는 화면들.
-        { href: "/rooms", label: "멀티게임 방", disabled: true },
+        // 대응 테이블이 없어 아직 만들 수 없는 화면들.
         { href: "/ads", label: "광고 슬롯", disabled: true },
         { href: "/stats", label: "통계", disabled: true },
       ],

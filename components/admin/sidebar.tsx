@@ -19,9 +19,79 @@ export type NavItem = {
   badge?: number;
   /** 아직 화면이 없는 항목. 눌리지 않게 하고 흐리게 둔다. */
   disabled?: boolean;
+  /** 하위 항목. 접지 않고 항상 펼쳐 둔다 (3개뿐이라 감출 이득이 없다). */
+  children?: NavItem[];
 };
 
 export type NavGroup = { items: NavItem[] };
+
+function isActive(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** 최상위 항목 하나(+하위 항목). 하위는 들여쓰고 배경 없이 글자 굵기로만 구분한다. */
+function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
+  const active = isActive(pathname, item.href);
+
+  return (
+    <>
+      {item.disabled ? (
+        <span
+          aria-disabled
+          title="아직 만들지 않은 화면입니다"
+          className="flex h-[38px] cursor-not-allowed items-center rounded-[10px] px-3 text-sm text-muted-foreground/50"
+        >
+          {item.label}
+        </span>
+      ) : (
+        <Link
+          href={item.href}
+          aria-current={active ? "page" : undefined}
+          className={cn(
+            "flex h-[38px] items-center justify-between rounded-[10px] px-3 text-sm transition-colors",
+            active
+              ? "bg-foreground font-medium text-background"
+              : "hover:bg-accent",
+          )}
+        >
+          <span>{item.label}</span>
+          {item.badge ? (
+            <span className="rounded-full bg-destructive px-[7px] py-0.5 text-[11px] font-semibold text-white tabular-nums">
+              {item.badge}
+            </span>
+          ) : null}
+        </Link>
+      )}
+
+      {item.children?.map((child) =>
+        child.disabled ? (
+          <span
+            key={child.href}
+            aria-disabled
+            title="아직 만들지 않은 화면입니다"
+            className="flex h-[34px] cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
+          >
+            {child.label}
+          </span>
+        ) : (
+          <Link
+            key={child.href}
+            href={child.href}
+            aria-current={isActive(pathname, child.href) ? "page" : undefined}
+            className={cn(
+              "flex h-[34px] items-center rounded-[10px] pl-6 text-sm transition-colors hover:bg-accent",
+              isActive(pathname, child.href)
+                ? "font-semibold"
+                : "text-muted-foreground",
+            )}
+          >
+            {child.label}
+          </Link>
+        ),
+      )}
+    </>
+  );
+}
 
 export function Sidebar({
   groups,
@@ -44,44 +114,9 @@ export function Sidebar({
       {groups.map((group, index) => (
         <div key={index} className="flex flex-col gap-0.5">
           {index > 0 ? <div className="mb-5 h-[3px] bg-border" /> : null}
-          {group.items.map((item) => {
-            const active =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-            if (item.disabled) {
-              return (
-                <span
-                  key={item.href}
-                  aria-disabled
-                  title="아직 만들지 않은 화면입니다"
-                  className="flex h-[38px] cursor-not-allowed items-center rounded-[10px] px-3 text-sm text-muted-foreground/50"
-                >
-                  {item.label}
-                </span>
-              );
-            }
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex h-[38px] items-center justify-between rounded-[10px] px-3 text-sm transition-colors",
-                  active
-                    ? "bg-foreground font-medium text-background"
-                    : "hover:bg-accent",
-                )}
-              >
-                <span>{item.label}</span>
-                {item.badge ? (
-                  <span className="rounded-full bg-destructive px-[7px] py-0.5 text-[11px] font-semibold text-white tabular-nums">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </Link>
-            );
-          })}
+          {group.items.map((item) => (
+            <NavEntry key={item.href} item={item} pathname={pathname} />
+          ))}
         </div>
       ))}
 

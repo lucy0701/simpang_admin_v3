@@ -47,7 +47,7 @@ export default async function ContentsPage() {
           <>
             <Button variant="outline">CSV 내보내기</Button>
             <Button asChild>
-              <Link href="/contents/new">심리테스트 등록</Link>
+              <Link href="/contents/new">MBTI 등록</Link>
             </Button>
           </>
         }
