@@ -11,71 +11,58 @@ import {
   listContents,
 } from "@/lib/data/queries";
 
-import { ContentTable } from "./content-table";
-import { ListControls, Pagination } from "./list-controls";
+import { ContentTable } from "../content-table";
+import { ListControls, Pagination } from "../list-controls";
 
-/**
- * 전체 콘텐츠 목록.
- *
- * 멀티게임은 뺀다. 실시간 방 운영이라 등록·편성·삭제라는 이 화면의 조작이
- * 맞지 않고, 별도 화면에서 다뤄야 한다.
- */
-const EXCLUDED_TYPES = ["multigame"];
+/** MBTI 는 content_type 의 psychotest 에 대응한다. */
+const MBTI_TYPES = ["psychotest"];
 
 const STATUS_OPTIONS = Object.entries(CONTENT_STATUS_LABEL).map(
   ([value, label]) => ({ value, label }),
 );
 
-const TYPE_OPTIONS = Object.entries(CONTENT_TYPE_LABEL)
-  .filter(([value]) => !EXCLUDED_TYPES.includes(value))
-  .map(([value, label]) => ({ value, label }));
-
-export default async function ContentsPage({
+export default async function MbtiContentsPage({
   searchParams,
-}: PageProps<"/contents">) {
+}: PageProps<"/contents/mbti">) {
   await requireOperator();
 
   const resolved = await searchParams;
   const params = {
     search: typeof resolved.search === "string" ? resolved.search : undefined,
-    type: typeof resolved.type === "string" ? resolved.type : undefined,
     status: typeof resolved.status === "string" ? resolved.status : undefined,
     page: typeof resolved.page === "string" ? resolved.page : undefined,
   };
   const page = Math.max(1, Number(params.page ?? 1) || 1);
-  const filtered = Boolean(params.search || params.type || params.status);
+  const filtered = Boolean(params.search || params.status);
 
   const [{ rows, total }, summary] = await Promise.all([
     listContents({
-      types: params.type ? [params.type] : undefined,
-      excludeTypes: params.type ? undefined : EXCLUDED_TYPES,
+      types: MBTI_TYPES,
       status: params.status,
       search: params.search,
       page,
     }),
-    contentSummary({ excludeTypes: EXCLUDED_TYPES }),
+    contentSummary({ types: MBTI_TYPES }),
   ]);
 
   return (
     <>
       <PageHeader
-        title="Contents"
+        title="MBTI"
         summary={`전체 ${summary.total}개 · 공개 ${summary.publicCount} · 검수 대기 ${summary.review} · 비공개 ${summary.private}`}
         actions={
-          <>
-            <Button variant="outline">CSV 내보내기</Button>
-            <Button asChild>
-              <Link href="/contents/new">콘텐츠 등록</Link>
-            </Button>
-          </>
+          <Button asChild>
+            <Link href="/contents/mbti/new">MBTI 등록</Link>
+          </Button>
         }
       />
 
       <Panel>
         <ListControls
-          basePath="/contents"
+          basePath="/contents/mbti"
           params={params}
-          typeOptions={TYPE_OPTIONS}
+          // 유형이 하나뿐이라 유형 필터는 두지 않는다.
+          typeOptions={[]}
           statusOptions={STATUS_OPTIONS}
         />
 
@@ -84,18 +71,18 @@ export default async function ContentsPage({
           typeLabels={CONTENT_TYPE_LABEL}
           emptyTitle={
             filtered
-              ? "조건에 맞는 콘텐츠가 없습니다"
-              : "등록된 콘텐츠가 없습니다"
+              ? "조건에 맞는 MBTI 콘텐츠가 없습니다"
+              : "등록된 MBTI 콘텐츠가 없습니다"
           }
           emptyDescription={
             filtered
-              ? "검색어나 필터를 바꿔보세요."
-              : "콘텐츠 등록 버튼으로 첫 콘텐츠를 만들어보세요."
+              ? "검색어나 상태 필터를 바꿔보세요."
+              : "MBTI 등록 버튼으로 문항과 결과 유형을 만들어보세요."
           }
         />
 
         <Pagination
-          basePath="/contents"
+          basePath="/contents/mbti"
           params={params}
           page={page}
           total={total}

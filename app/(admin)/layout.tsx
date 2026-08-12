@@ -34,9 +34,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
           children: [
             // 지금 만들 수 있는 건 MBTI 뿐이다. content.content_type 의
             // 'psychotest' 가 이것에 해당한다 (enum 값은 스키마 그대로 둔다).
-            { href: "/contents", label: "MBTI" },
-            { href: "/contents/minigame", label: "미니게임", disabled: true },
-            { href: "/contents/multigame", label: "멀티게임", disabled: true },
+            { href: "/contents/mbti", label: "MBTI" },
           ],
         },
         { href: "/members", label: "회원" },

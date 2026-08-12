@@ -71,5 +71,6 @@ export async function createContent(
   });
 
   revalidatePath("/contents");
-  redirect("/contents");
+  revalidatePath("/contents/mbti");
+  redirect("/contents/mbti");
 }

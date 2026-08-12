@@ -39,6 +39,8 @@ function startOfToday(): string {
 
 export const CONTENT_TYPE_LABEL: Record<string, string> = {
   // DB enum 값은 스키마의 psychotest 그대로 두고 표시 이름만 MBTI 로 쓴다.
+  // 심리테스트를 MBTI 와 별개 유형으로 나누려면 content_type CHECK 제약을
+  // 바꾸는 마이그레이션이 필요하다.
   psychotest: "MBTI",
   minigame: "미니게임",
   multigame: "멀티게임",
@@ -54,6 +56,7 @@ export const CONTENT_STATUS_LABEL: Record<string, string> = {
 export type ContentRow = {
   id: number;
   title: string;
+  thumbnail: string | null;
   contentType: string;
   status: string;
   likeCount: number;
@@ -63,32 +66,71 @@ export type ContentRow = {
   createdAt: string;
 };
 
-export async function listContents(): Promise<ContentRow[]> {
+export type ContentListParams = {
+  /** 이 유형만. 비우면 제한하지 않는다. */
+  types?: string[];
+  /** 이 유형은 뺀다. 전체 목록에서 멀티게임을 제외할 때 쓴다. */
+  excludeTypes?: string[];
+  status?: string;
+  search?: string;
+  page?: number;
+};
+
+export const CONTENT_PAGE_SIZE = 20;
+
+export async function listContents(
+  params: ContentListParams = {},
+): Promise<{ rows: ContentRow[]; total: number }> {
   const admin = createAdminClient();
-  const { data } = await admin
+  const page = Math.max(1, params.page ?? 1);
+  const from = (page - 1) * CONTENT_PAGE_SIZE;
+
+  let query = admin
     .from("content")
     .select(
-      "id, title, content_type, status, like_count, comment_count, play_count, is_home_featured, created_at",
-    )
-    .order("created_at", { ascending: false })
-    .limit(LIST_LIMIT);
+      "id, title, thumbnail, content_type, status, like_count, comment_count, play_count, is_home_featured, created_at",
+      { count: "exact" },
+    );
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    title: row.title,
-    contentType: row.content_type,
-    status: row.status,
-    likeCount: row.like_count,
-    commentCount: row.comment_count,
-    playCount: row.play_count,
-    isHomeFeatured: row.is_home_featured,
-    createdAt: row.created_at,
-  }));
+  if (params.types?.length) query = query.in("content_type", params.types);
+  for (const type of params.excludeTypes ?? []) {
+    query = query.neq("content_type", type);
+  }
+  if (params.status) query = query.eq("status", params.status);
+  if (params.search) {
+    // 제목 부분 일치. ilike 는 대소문자를 무시한다.
+    query = query.ilike("title", `%${params.search}%`);
+  }
+
+  const { data, count } = await query
+    .order("created_at", { ascending: false })
+    .range(from, from + CONTENT_PAGE_SIZE - 1);
+
+  return {
+    rows: (data ?? []).map((row) => ({
+      id: row.id,
+      title: row.title,
+      thumbnail: row.thumbnail,
+      contentType: row.content_type,
+      status: row.status,
+      likeCount: row.like_count,
+      commentCount: row.comment_count,
+      playCount: row.play_count,
+      isHomeFeatured: row.is_home_featured,
+      createdAt: row.created_at,
+    })),
+    total: count ?? 0,
+  };
 }
 
-export async function contentSummary() {
+export async function contentSummary(params: ContentListParams = {}) {
   const admin = createAdminClient();
-  const base = () => admin.from("content").select("id", HEAD_COUNT);
+  const base = () => {
+    let q = admin.from("content").select("id", HEAD_COUNT);
+    if (params.types?.length) q = q.in("content_type", params.types);
+    for (const type of params.excludeTypes ?? []) q = q.neq("content_type", type);
+    return q;
+  };
 
   const [total, publicCount, review, priv] = await Promise.all([
     count(base()),
@@ -281,7 +323,7 @@ export async function topContents(limit = 5): Promise<ContentRow[]> {
   const { data } = await admin
     .from("content")
     .select(
-      "id, title, content_type, status, like_count, comment_count, play_count, is_home_featured, created_at",
+      "id, title, thumbnail, content_type, status, like_count, comment_count, play_count, is_home_featured, created_at",
     )
     .eq("status", "public")
     .order("play_count", { ascending: false })
@@ -290,6 +332,7 @@ export async function topContents(limit = 5): Promise<ContentRow[]> {
   return (data ?? []).map((row) => ({
     id: row.id,
     title: row.title,
+    thumbnail: row.thumbnail,
     contentType: row.content_type,
     status: row.status,
     likeCount: row.like_count,

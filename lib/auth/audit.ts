@@ -16,7 +16,10 @@ export type AuditAction =
   | "operator.invite"
   | "operator.invite.revoke"
   | "operator.create"
-  | "content.create";
+  | "content.create"
+  | "content.publish"
+  | "content.feature"
+  | "content.delete";
 
 type AuditEntry = {
   operatorId: string | null;
