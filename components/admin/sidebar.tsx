@@ -85,7 +85,21 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
                 : "text-muted-foreground",
             )}
           >
-            {child.label}
+            {/*
+              상위 항목은 검은 반전으로 현재 위치를 알리지만, 하위 항목까지
+              같은 방식을 쓰면 둘 중 어디에 있는지 헷갈린다. 글자 굵기만으로는
+              약해서 밑줄로 "여기" 를 분명히 한다.
+            */}
+            <span
+              className={cn(
+                "border-b-[3px] pb-0.5",
+                isActive(pathname, child.href)
+                  ? "border-primary"
+                  : "border-transparent",
+              )}
+            >
+              {child.label}
+            </span>
           </Link>
         ),
       )}
