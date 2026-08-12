@@ -21,7 +21,11 @@ import {
   requireOperator,
   type PermissionEffect,
 } from "@/lib/auth/dal";
-import { dashboardStats, listRecentAudit, topContents } from "@/lib/data/queries";
+import {
+  dashboardStats,
+  listRecentAudit,
+  topContents,
+} from "@/lib/data/queries";
 
 const EFFECT_LABEL: Record<PermissionEffect, string> = {
   allow: "허용",
@@ -53,7 +57,7 @@ export default async function DashboardPage() {
   });
 
   const grantedCount = [...permissions.values()].filter(
-    (effect) => effect !== "deny",
+    (effect) => effect !== "deny"
   ).length;
 
   return (
@@ -146,7 +150,9 @@ export default async function DashboardPage() {
         <div className="flex flex-col gap-6">
           <Panel
             title="내 권한"
-            description={`${operator.role?.name ?? "역할 미지정"} · ${grantedCount}개 사용 가능`}
+            description={`${
+              operator.role?.name ?? "역할 미지정"
+            } · ${grantedCount}개 사용 가능`}
             actions={
               <Button asChild variant="ghost" size="sm">
                 <Link href="/operators">권한 관리</Link>

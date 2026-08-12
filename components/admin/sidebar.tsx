@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -87,7 +88,7 @@ function NavBadge({ value, tone }: { value: number; tone: "danger" | "info" }) {
     <span
       className={cn(
         "rounded-full px-1.75 py-0.5 text-[11px] font-semibold text-white tabular-nums",
-        tone === "danger" ? "bg-destructive" : "bg-primary",
+        tone === "danger" ? "bg-destructive" : "bg-primary"
       )}
     >
       {value}
@@ -106,6 +107,7 @@ function NavEntry({
   open: boolean;
   onToggle: () => void;
 }) {
+  const reduceMotion = useReducedMotion();
   const active = isActive(pathname, item.href);
   const Icon = item.icon ? ICONS[item.icon] : null;
   // href 가 없으면 이동 대상이 없으니 열고 닫기만 한다.
@@ -131,13 +133,16 @@ function NavEntry({
         ) : null}
         {/* 눌러서 여닫는 항목이라는 걸 알려준다. 이동하는 항목에는 붙이지 않는다. */}
         {toggleOnly ? (
-          <LuChevronDown
+          <motion.span
             aria-hidden
-            className={cn(
-              "size-4 transition-transform",
-              open ? "rotate-180" : null,
-            )}
-          />
+            animate={{ rotate: open ? 180 : 0 }}
+            transition={
+              reduceMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }
+            }
+            className="flex"
+          >
+            <LuChevronDown className="size-4" />
+          </motion.span>
         ) : null}
       </span>
     </>
@@ -162,7 +167,7 @@ function NavEntry({
             "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
             inSection
               ? "bg-foreground font-medium text-background"
-              : "hover:bg-accent",
+              : "hover:bg-accent"
           )}
         >
           {inner}
@@ -175,22 +180,40 @@ function NavEntry({
             "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
             inSection
               ? "bg-foreground font-medium text-background"
-              : "hover:bg-accent",
+              : "hover:bg-accent"
           )}
         >
           {inner}
         </Link>
       )}
 
-      {open && item.children?.length
-        ? item.children.map((child) => {
+      <AnimatePresence initial={false}>
+        {open && item.children?.length ? (
+          <motion.div
+            key="children"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : // 높이는 스프링으로 밀고 투명도는 짧게 끊어 잔상을 줄인다.
+                  {
+                    height: { type: "spring", stiffness: 420, damping: 36, mass: 0.7 },
+                    opacity: { duration: 0.15 },
+                  }
+            }
+            // 접히는 중에 내용이 삐져나오지 않게 한다.
+            className="flex flex-col gap-0.5 overflow-hidden"
+          >
+            {item.children.map((child) => {
             const childActive = isActive(pathname, child.href);
 
             const label = (
               <span className="flex items-center gap-2">
-                <span aria-hidden className="text-[10px] leading-none">
+                {/* <span aria-hidden className="text-[10px] leading-none">
                   ●
-                </span>
+                </span> */}
                 {/*
                   상위 항목은 검은 반전으로 현재 위치를 알린다. 하위까지 같은
                   방식을 쓰면 어디에 있는지 헷갈려서 굵기와 밑줄로 구분한다.
@@ -198,7 +221,7 @@ function NavEntry({
                 <span
                   className={cn(
                     "border-b-3 pb-0.5",
-                    childActive ? "border-primary" : "border-transparent",
+                    childActive ? "border-primary" : "border-transparent"
                   )}
                 >
                   {child.label}
@@ -222,14 +245,16 @@ function NavEntry({
                 aria-current={childActive ? "page" : undefined}
                 className={cn(
                   "flex h-8.5 items-center rounded-lg pl-6 text-sm transition-colors hover:bg-accent",
-                  childActive ? "font-semibold" : "text-muted-foreground",
+                  childActive ? "font-semibold" : "text-muted-foreground"
                 )}
               >
                 {label}
               </Link>
             );
-          })
-        : null}
+            })}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }
@@ -262,10 +287,13 @@ export function Sidebar({
      * self-start 가 없으면 flex 가 컨테이너 높이만큼 늘여버려서 sticky 가
      * 붙을 여백이 사라진다.
      */
-    <aside className="sticky top-0 flex h-dvh w-55 shrink-0 flex-col self-start border-r-3 p-4.5 pt-6">
-      <div className="flex flex-col gap-1 px-3">
-        <span className="display text-xl leading-none">Playground</span>
-        <span className="text-xs text-muted-foreground">운영자 콘솔</span>
+    <aside className="sticky top-0 flex h-dvh w-55 shrink-0 flex-col self-start border-r p-4.5 pt-6">
+      <div className="flex gap-2">
+        <div className="w-0.5 rounded-lg bg-default" />
+        <div className="flex flex-col gap-1 px-3">
+          <span className="display text-xl leading-none">SIMPANG</span>
+          <span className="text-xs text-muted-foreground">Admin Console</span>
+        </div>
       </div>
 
       {/*
@@ -280,8 +308,8 @@ export function Sidebar({
             className={cn(
               "flex flex-col gap-0.5",
               index === groups.length - 1 && groups.length > 1
-                ? "mt-auto border-t-3 pt-4"
-                : null,
+                ? "mt-auto border-t pt-4"
+                : null
             )}
           >
             {group.items.map((item) => (
