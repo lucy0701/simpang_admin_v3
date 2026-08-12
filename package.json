@@ -10,6 +10,9 @@
     "typecheck": "tsc --noEmit",
     "db:types": "supabase gen types typescript --schema public > lib/supabase/database.types.ts"
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.109.0",
