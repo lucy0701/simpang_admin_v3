@@ -193,30 +193,42 @@ export function Sidebar({
   const initials = operator.name.slice(0, 2);
 
   return (
-    <aside className="flex w-55 shrink-0 flex-col gap-6 border-r-3 p-4.5 pt-6">
+    /*
+     * 사이드바는 뷰포트에 붙어 본문과 따로 논다.
+     * self-start 가 없으면 flex 가 컨테이너 높이만큼 늘여버려서 sticky 가
+     * 붙을 여백이 사라진다.
+     */
+    <aside className="sticky top-0 flex h-dvh w-55 shrink-0 flex-col self-start border-r-3 p-4.5 pt-6">
       <div className="flex flex-col gap-1 px-3">
         <span className="display text-xl leading-none">Playground</span>
         <span className="text-xs text-muted-foreground">운영자 콘솔</span>
       </div>
 
-      {/* 첫 그룹은 일상 업무, 마지막 그룹은 설정. 사이를 비워 설정을 아래로 민다. */}
-      {groups.map((group, index) => (
-        <div
-          key={index}
-          className={cn(
-            "flex flex-col gap-0.5",
-            index === groups.length - 1 && groups.length > 1
-              ? "mt-auto border-t-3 pt-4"
-              : null,
-          )}
-        >
-          {group.items.map((item) => (
-            <NavEntry key={item.href} item={item} pathname={pathname} />
-          ))}
-        </div>
-      ))}
+      {/*
+        메뉴 영역만 늘어나고 줄어든다. 마지막 그룹에 mt-auto 를 줘서 아래에
+        붙이면, 하위 항목이 펼쳐질 때 아래를 밀지 않고 위로 자란다.
+        항목이 많아 넘치면 이 영역만 스크롤된다.
+      */}
+      <nav className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto py-6">
+        {groups.map((group, index) => (
+          <div
+            key={index}
+            className={cn(
+              "flex flex-col gap-0.5",
+              index === groups.length - 1 && groups.length > 1
+                ? "mt-auto border-t-3 pt-4"
+                : null,
+            )}
+          >
+            {group.items.map((item) => (
+              <NavEntry key={item.href} item={item} pathname={pathname} />
+            ))}
+          </div>
+        ))}
+      </nav>
 
-      <div className="flex items-center gap-2.5 rounded-xl bg-muted p-2.5">
+      {/* 네임카드는 스크롤 영역 밖이라 항상 화면 맨 아래에 남는다. */}
+      <div className="flex shrink-0 items-center gap-2.5 rounded-xl bg-muted p-2.5">
         <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">
           {initials}
         </span>
