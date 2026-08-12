@@ -115,8 +115,9 @@ function NavEntry({
   const reduceMotion = useReducedMotion();
   const active = isActive(pathname, item.href);
   const Icon = item.icon ? ICONS[item.icon] : null;
+  const hasChildren = Boolean(item.children?.length);
   // href 가 없으면 이동 대상이 없으니 열고 닫기만 한다.
-  const toggleOnly = !item.href && Boolean(item.children?.length);
+  const toggleOnly = !item.href && hasChildren;
 
   /*
    * 강조와 여닫힘은 별개다.
@@ -145,8 +146,8 @@ function NavEntry({
         {item.badge ? (
           <NavBadge value={item.badge} tone={item.badgeTone ?? "danger"} />
         ) : null}
-        {/* 눌러서 여닫는 항목이라는 걸 알려준다. 이동하는 항목에는 붙이지 않는다. */}
-        {toggleOnly ? (
+        {/* 하위가 있다는 걸 알려준다. 이동하는 항목도 열리므로 함께 붙인다. */}
+        {hasChildren ? (
           <motion.span
             aria-hidden
             animate={{ rotate: open ? 180 : 0 }}

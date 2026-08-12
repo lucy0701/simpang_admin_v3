@@ -29,8 +29,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
       items: [
         { href: "/dashboard", label: "대시보드", icon: "dashboard" },
         {
-          // 자체 화면이 없는 묶음이라 href 를 두지 않는다. 누르면 이동하지
-          // 않고 하위 목록만 열고 닫힌다. 실제 이동은 하위 항목에서.
+          // 자체 목록이 있으므로 누르면 전체 보기로 이동하면서 하위도 펼쳐진다.
+          href: "/contents",
           label: "콘텐츠",
           icon: "content",
           children: [
