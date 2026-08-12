@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   EmptyState,
   PageHeader,
@@ -44,7 +46,9 @@ export default async function ContentsPage() {
         actions={
           <>
             <Button variant="outline">CSV 내보내기</Button>
-            <Button>콘텐츠 등록</Button>
+            <Button asChild>
+              <Link href="/contents/new">심리테스트 등록</Link>
+            </Button>
           </>
         }
       />

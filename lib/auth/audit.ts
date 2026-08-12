@@ -15,7 +15,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export type AuditAction =
   | "operator.invite"
   | "operator.invite.revoke"
-  | "operator.create";
+  | "operator.create"
+  | "content.create";
 
 type AuditEntry = {
   operatorId: string | null;
