@@ -1,8 +1,4 @@
-import {
-  EmptyState,
-  PageHeader,
-  Panel,
-} from "@/components/admin/page-header";
+import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,7 +48,11 @@ export default async function MembersPage() {
     <>
       <PageHeader
         title="Members"
-        summary={`전체 ${summary.total.toLocaleString("ko-KR")} · 오늘 신규 ${summary.today.toLocaleString("ko-KR")} · 제재중 ${summary.suspended}`}
+        summary={`전체 ${summary.total.toLocaleString(
+          "ko-KR"
+        )} · 오늘 신규 ${summary.today.toLocaleString("ko-KR")} · 제재중 ${
+          summary.suspended
+        }`}
         actions={<Button variant="outline">제재 이력</Button>}
       />
 
@@ -105,7 +105,7 @@ export default async function MembersPage() {
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {canViewPii
-                        ? (member.memberNo ?? "—")
+                        ? member.memberNo ?? "—"
                         : maskMemberNo(member.memberNo)}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">

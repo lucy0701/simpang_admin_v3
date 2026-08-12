@@ -23,7 +23,7 @@ import { ListControls, Pagination } from "./list-controls";
 const EXCLUDED_TYPES = ["multigame"];
 
 const STATUS_OPTIONS = Object.entries(CONTENT_STATUS_LABEL).map(
-  ([value, label]) => ({ value, label }),
+  ([value, label]) => ({ value, label })
 );
 
 const TYPE_OPTIONS = Object.entries(CONTENT_TYPE_LABEL)

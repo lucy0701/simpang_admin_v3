@@ -34,7 +34,9 @@ export default async function CommentsPage() {
     <>
       <PageHeader
         title="Comments"
-        summary={`신고 대기 ${summary.pending} · 오늘 등록 ${summary.commentsToday.toLocaleString("ko-KR")}`}
+        summary={`신고 대기 ${
+          summary.pending
+        } · 오늘 등록 ${summary.commentsToday.toLocaleString("ko-KR")}`}
         actions={<Button variant="outline">금칙어 목록</Button>}
       />
 
@@ -42,7 +44,11 @@ export default async function CommentsPage() {
         <StatTile
           label="신고 대기"
           value={summary.pending}
-          note={reports[0] ? `가장 오래된 건 ${timeAgo(reports[0].createdAt)}` : "대기 중인 신고 없음"}
+          note={
+            reports[0]
+              ? `가장 오래된 건 ${timeAgo(reports[0].createdAt)}`
+              : "대기 중인 신고 없음"
+          }
           tone={summary.pending > 0 ? "destructive" : "muted"}
         />
         <StatTile label="욕설 · 비방" value={summary.abuse} />

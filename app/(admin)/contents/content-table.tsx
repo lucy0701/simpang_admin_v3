@@ -16,7 +16,12 @@ import {
 import type { ContentRow } from "@/lib/data/queries";
 import { cn } from "@/lib/utils";
 
-import { bulkDelete, bulkFeature, bulkPublish, type BulkState } from "./actions";
+import {
+  bulkDelete,
+  bulkFeature,
+  bulkPublish,
+  type BulkState,
+} from "./actions";
 
 const initialState: BulkState = {};
 
@@ -46,15 +51,15 @@ export function ContentTable({
 
   const [publishState, publishAction, publishing] = useActionState(
     bulkPublish,
-    initialState,
+    initialState
   );
   const [featureState, featureAction, featuring] = useActionState(
     bulkFeature,
-    initialState,
+    initialState
   );
   const [deleteState, deleteAction, deleting] = useActionState(
     bulkDelete,
-    initialState,
+    initialState
   );
 
   const pending = publishing || featuring || deleting;
@@ -66,7 +71,7 @@ export function ContentTable({
     featureState.done ??
     deleteState.done;
   const isError = Boolean(
-    publishState.error ?? featureState.error ?? deleteState.error,
+    publishState.error ?? featureState.error ?? deleteState.error
   );
 
   const allChecked = rows.length > 0 && selected.length === rows.length;
@@ -76,7 +81,7 @@ export function ContentTable({
 
   const toggle = (id: number) =>
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
   if (rows.length === 0) {
@@ -92,7 +97,7 @@ export function ContentTable({
             "rounded-lg px-3 py-2 text-sm",
             isError
               ? "bg-destructive/10 text-destructive"
-              : "bg-primary/10 text-primary",
+              : "bg-primary/10 text-primary"
           )}
         >
           {message}
@@ -109,7 +114,7 @@ export function ContentTable({
                   checked={allChecked}
                   onChange={toggleAll}
                   aria-label="전체 선택"
-                  className="size-4 accent-[var(--primary)]"
+                  className="size-4 accent-primary"
                 />
               </TableHead>
               <TableHead className="w-16">썸네일</TableHead>
@@ -132,14 +137,17 @@ export function ContentTable({
               const checked = selected.includes(row.id);
 
               return (
-                <TableRow key={row.id} data-state={checked ? "selected" : undefined}>
+                <TableRow
+                  key={row.id}
+                  data-state={checked ? "selected" : undefined}
+                >
                   <TableCell>
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggle(row.id)}
                       aria-label={`${row.title} 선택`}
-                      className="size-4 accent-[var(--primary)]"
+                      className="size-4 accent-primary"
                     />
                   </TableCell>
                   <TableCell>
@@ -169,7 +177,7 @@ export function ContentTable({
                     <span
                       className={cn(
                         "inline-flex rounded-md px-2.5 py-1 text-xs font-medium",
-                        status.className,
+                        status.className
                       )}
                     >
                       {status.label}

@@ -18,7 +18,7 @@ import { ListControls, Pagination } from "../list-controls";
 const MBTI_TYPES = ["psychotest"];
 
 const STATUS_OPTIONS = Object.entries(CONTENT_STATUS_LABEL).map(
-  ([value, label]) => ({ value, label }),
+  ([value, label]) => ({ value, label })
 );
 
 export default async function MbtiContentsPage({

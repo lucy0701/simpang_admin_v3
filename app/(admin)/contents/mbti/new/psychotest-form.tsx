@@ -74,7 +74,7 @@ function useCoverage(questions: Question[], resultTypes: ResultType[]) {
           max: acc.max + Math.max(...scores),
         };
       },
-      { min: 0, max: 0 },
+      { min: 0, max: 0 }
     );
 
     const covered = new Set<number>();
@@ -95,7 +95,7 @@ function useCoverage(questions: Question[], resultTypes: ResultType[]) {
 export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
   const [state, formAction, pending] = useActionState(
     createContent,
-    initialState,
+    initialState
   );
 
   const [title, setTitle] = useState("");
@@ -142,19 +142,19 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
 
   const patchQuestion = (patch: Partial<Question>) =>
     setQuestions((prev) =>
-      prev.map((q, i) => (i === current ? { ...q, ...patch } : q)),
+      prev.map((q, i) => (i === current ? { ...q, ...patch } : q))
     );
 
   const patchAnswer = (index: number, patch: Partial<Answer>) =>
     patchQuestion({
       answers: question.answers.map((a, i) =>
-        i === index ? { ...a, ...patch } : a,
+        i === index ? { ...a, ...patch } : a
       ),
     });
 
   const patchType = (index: number, patch: Partial<ResultType>) =>
     setResultTypes((prev) =>
-      prev.map((t, i) => (i === index ? { ...t, ...patch } : t)),
+      prev.map((t, i) => (i === index ? { ...t, ...patch } : t))
     );
 
   const addQuestion = () => {
@@ -260,7 +260,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                       "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
                       index === current
                         ? "bg-foreground font-medium text-background"
-                        : "bg-muted/60 hover:bg-accent",
+                        : "bg-muted/60 hover:bg-accent"
                     )}
                   >
                     <span className="font-mono text-xs opacity-70">
@@ -390,7 +390,9 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                       type="number"
                       value={answer.score}
                       onChange={(event) =>
-                        patchAnswer(index, { score: Number(event.target.value) })
+                        patchAnswer(index, {
+                          score: Number(event.target.value),
+                        })
                       }
                       aria-label={`${index + 1}번 선택지 점수`}
                       className="h-6 w-14 border-0 bg-transparent p-0 text-right text-sm font-semibold shadow-none focus-visible:ring-0"
@@ -405,7 +407,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                       onClick={() =>
                         patchQuestion({
                           answers: question.answers.filter(
-                            (_, i) => i !== index,
+                            (_, i) => i !== index
                           ),
                         })
                       }
@@ -460,13 +462,13 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                         "flex w-full items-center gap-3 rounded-xl border-3 p-3 text-left transition-colors",
                         index === activeType
                           ? "border-foreground"
-                          : "hover:bg-accent",
+                          : "hover:bg-accent"
                       )}
                     >
                       <span
                         className={cn(
                           "size-8 shrink-0 rounded-md",
-                          TYPE_COLORS[index % TYPE_COLORS.length],
+                          TYPE_COLORS[index % TYPE_COLORS.length]
                         )}
                       />
                       <span className="flex min-w-0 flex-col">
@@ -498,7 +500,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                       className="text-destructive"
                       onClick={() => {
                         setResultTypes((prev) =>
-                          prev.filter((_, i) => i !== activeType),
+                          prev.filter((_, i) => i !== activeType)
                         );
                         setActiveType((prev) => Math.max(0, prev - 1));
                       }}
@@ -579,7 +581,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                 ) : null}
                 {/* 카드 이미지는 무엇이 올지 모른다. 밝은 이미지나 빈 플레이스홀더
                     위에서도 유형명이 읽히도록 어두운 스크림을 항상 깐다. */}
-                <span className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent" />
+                <span className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-black/70 to-transparent" />
                 <span className="absolute bottom-3 left-3 text-lg font-bold text-white">
                   {resultTypes[activeType]?.name || "유형 이름"}
                 </span>

@@ -1,8 +1,4 @@
-import {
-  EmptyState,
-  PageHeader,
-  Panel,
-} from "@/components/admin/page-header";
+import { EmptyState, PageHeader, Panel } from "@/components/admin/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,7 +32,8 @@ const CELL_STYLE: Record<MatrixCell, { label: string; className: string }> = {
   deny: { label: "차단", className: "bg-muted text-muted-foreground" },
   approval_required: {
     label: "승인 필요",
-    className: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
+    className:
+      "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
   },
   extra_grant: {
     label: "별도 권한",

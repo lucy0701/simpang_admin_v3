@@ -26,12 +26,6 @@ const CONTENT_TYPES = [
     description: "MBTI 와 다른 판정 방식을 쓸 예정입니다.",
     ready: false,
   },
-  {
-    href: "#",
-    title: "미니게임",
-    description: "점수·랭킹 기반의 단일 플레이 게임입니다.",
-    ready: false,
-  },
 ];
 
 export default async function NewContentPage() {
@@ -86,7 +80,7 @@ export default async function NewContentPage() {
                   준비 중
                 </span>
               </div>
-            ),
+            )
           )}
         </div>
       )}
