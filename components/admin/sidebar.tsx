@@ -366,7 +366,7 @@ export function Sidebar({
               className={cn(
                 "flex flex-col gap-0.5",
                 index === groups.length - 1 && groups.length > 1
-                  ? "mt-auto border-t pt-4"
+                  ? "mt-auto"
                   : null
               )}
             >
