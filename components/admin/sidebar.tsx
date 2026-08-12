@@ -39,7 +39,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
         <span
           aria-disabled
           title="아직 만들지 않은 화면입니다"
-          className="flex h-[38px] cursor-not-allowed items-center rounded-[10px] px-3 text-sm text-muted-foreground/50"
+          className="flex h-9.5 cursor-not-allowed items-center rounded-lg px-3 text-sm text-muted-foreground/50"
         >
           {item.label}
         </span>
@@ -48,7 +48,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
           href={item.href}
           aria-current={active ? "page" : undefined}
           className={cn(
-            "flex h-[38px] items-center justify-between rounded-[10px] px-3 text-sm transition-colors",
+            "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
             active
               ? "bg-foreground font-medium text-background"
               : "hover:bg-accent",
@@ -56,7 +56,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
         >
           <span>{item.label}</span>
           {item.badge ? (
-            <span className="rounded-full bg-destructive px-[7px] py-0.5 text-[11px] font-semibold text-white tabular-nums">
+            <span className="rounded-full bg-destructive px-1.75 py-0.5 text-[11px] font-semibold text-white tabular-nums">
               {item.badge}
             </span>
           ) : null}
@@ -69,7 +69,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
             key={child.href}
             aria-disabled
             title="아직 만들지 않은 화면입니다"
-            className="flex h-[34px] cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
+            className="flex h-8.5 cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
           >
             {child.label}
           </span>
@@ -79,7 +79,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
             href={child.href}
             aria-current={isActive(pathname, child.href) ? "page" : undefined}
             className={cn(
-              "flex h-[34px] items-center rounded-[10px] pl-6 text-sm transition-colors hover:bg-accent",
+              "flex h-8.5 items-center rounded-lg pl-6 text-sm transition-colors hover:bg-accent",
               isActive(pathname, child.href)
                 ? "font-semibold"
                 : "text-muted-foreground",
@@ -92,7 +92,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
             */}
             <span
               className={cn(
-                "border-b-[3px] pb-0.5",
+                "border-b-3 pb-0.5",
                 isActive(pathname, child.href)
                   ? "border-primary"
                   : "border-transparent",
@@ -119,7 +119,7 @@ export function Sidebar({
   const initials = operator.name.slice(0, 2);
 
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col gap-6 border-r-[3px] p-[18px] pt-6">
+    <aside className="flex w-55 shrink-0 flex-col gap-6 border-r-3 p-4.5 pt-6">
       <div className="flex flex-col gap-1 px-3">
         <span className="display text-xl leading-none">Playground</span>
         <span className="text-xs text-muted-foreground">운영자 콘솔</span>
@@ -127,15 +127,15 @@ export function Sidebar({
 
       {groups.map((group, index) => (
         <div key={index} className="flex flex-col gap-0.5">
-          {index > 0 ? <div className="mb-5 h-[3px] bg-border" /> : null}
+          {index > 0 ? <div className="mb-5 h-0.75 bg-border" /> : null}
           {group.items.map((item) => (
             <NavEntry key={item.href} item={item} pathname={pathname} />
           ))}
         </div>
       ))}
 
-      <div className="mt-auto flex items-center gap-2.5 border-t-[3px] pt-4">
-        <span className="flex size-8 items-center justify-center rounded-[10px] bg-accent text-xs font-bold text-muted-foreground">
+      <div className="mt-auto flex items-center gap-2.5 border-t-3 pt-4">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-accent text-xs font-bold text-muted-foreground">
           {initials}
         </span>
         <span className="flex min-w-0 flex-col">

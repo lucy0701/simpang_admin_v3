@@ -41,7 +41,7 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section className={`panel flex flex-col gap-4 p-[18px] ${className ?? ""}`}>
+    <section className={`panel flex flex-col gap-4 p-4.5 ${className ?? ""}`}>
       {title || actions ? (
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
@@ -79,7 +79,7 @@ export function StatTile({
   }[tone];
 
   return (
-    <div className="panel flex flex-1 flex-col gap-2.5 p-[18px]">
+    <div className="panel flex flex-1 flex-col gap-2.5 p-4.5">
       <span className="text-[13px] text-muted-foreground">{label}</span>
       <span className="text-[34px] leading-none font-extrabold tabular-nums">
         {value}
@@ -98,7 +98,7 @@ export function EmptyState({
   description?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1.5 rounded-[14px] bg-muted/60 px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-1.5 rounded-xl bg-muted/60 px-6 py-10 text-center">
       <p className="text-sm font-medium">{title}</p>
       {description ? (
         <p className="max-w-md text-xs text-muted-foreground">{description}</p>

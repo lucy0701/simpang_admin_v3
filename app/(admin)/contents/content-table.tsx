@@ -89,7 +89,7 @@ export function ContentTable({
         <p
           role="status"
           className={cn(
-            "rounded-[10px] px-3 py-2 text-sm",
+            "rounded-lg px-3 py-2 text-sm",
             isError
               ? "bg-destructive/10 text-destructive"
               : "bg-primary/10 text-primary",
@@ -148,10 +148,10 @@ export function ContentTable({
                       <img
                         src={row.thumbnail}
                         alt=""
-                        className="size-10 rounded-[8px] object-cover"
+                        className="size-10 rounded-md object-cover"
                       />
                     ) : (
-                      <span className="block size-10 rounded-[8px] bg-muted" />
+                      <span className="block size-10 rounded-md bg-muted" />
                     )}
                   </TableCell>
                   <TableCell className="font-medium">
@@ -168,7 +168,7 @@ export function ContentTable({
                   <TableCell>
                     <span
                       className={cn(
-                        "inline-flex rounded-[8px] px-2.5 py-1 text-xs font-medium",
+                        "inline-flex rounded-md px-2.5 py-1 text-xs font-medium",
                         status.className,
                       )}
                     >
@@ -210,7 +210,7 @@ export function ContentTable({
 
       {/* 선택 액션 바. 시안처럼 목록 하단에 붙는다. */}
       {selected.length > 0 ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-foreground px-4 py-3 text-background">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-foreground px-4 py-3 text-background">
           <span className="text-sm">{selected.length}개 선택됨</span>
 
           <div className="flex flex-wrap items-center gap-2">

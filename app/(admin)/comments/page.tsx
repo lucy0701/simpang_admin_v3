@@ -64,7 +64,7 @@ export default async function CommentsPage() {
             {reports.map((report) => (
               <li
                 key={report.id}
-                className="flex flex-col gap-3 rounded-[14px] border-[3px] p-4"
+                className="flex flex-col gap-3 rounded-xl border-3 p-4"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[13px]">
                   <span className="font-medium">
@@ -90,7 +90,7 @@ export default async function CommentsPage() {
                   ) : null}
                 </div>
 
-                <p className="rounded-[10px] bg-muted px-3.5 py-3 text-sm">
+                <p className="rounded-lg bg-muted px-3.5 py-3 text-sm">
                   {report.commentBody ?? "(원문이 삭제되었습니다)"}
                 </p>
 

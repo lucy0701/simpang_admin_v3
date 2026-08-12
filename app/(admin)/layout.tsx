@@ -60,7 +60,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-end border-b-[3px] px-7 py-3">
+        <div className="flex items-center justify-end border-b-3 px-7 py-3">
           <form action={logout}>
             <Button type="submit" variant="ghost" size="sm">
               로그아웃

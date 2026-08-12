@@ -65,7 +65,7 @@ export function ListControls({
                   page: undefined,
                 })}
                 className={cn(
-                  "rounded-full border-[3px] px-3.5 py-1.5 text-[13px] transition-colors",
+                  "rounded-full border-3 px-3.5 py-1.5 text-[13px] transition-colors",
                   active
                     ? "border-foreground bg-foreground text-background"
                     : "hover:bg-accent",
@@ -89,7 +89,7 @@ export function ListControls({
                 page: undefined,
               })}
               className={cn(
-                "rounded-full border-[3px] px-3.5 py-1.5 text-[13px] transition-colors",
+                "rounded-full border-3 px-3.5 py-1.5 text-[13px] transition-colors",
                 active
                   ? "border-foreground bg-foreground text-background"
                   : "hover:bg-accent",
@@ -131,7 +131,7 @@ export function Pagination({
     disabled ? (
       <span
         key={label}
-        className="flex size-9 items-center justify-center rounded-[10px] border-[3px] text-sm text-muted-foreground/40"
+        className="flex size-9 items-center justify-center rounded-lg border-3 text-sm text-muted-foreground/40"
       >
         {label}
       </span>
@@ -139,7 +139,7 @@ export function Pagination({
       <Link
         key={label}
         href={withParam(basePath, params, { page: String(target) })}
-        className="flex size-9 items-center justify-center rounded-[10px] border-[3px] text-sm hover:bg-accent"
+        className="flex size-9 items-center justify-center rounded-lg border-3 text-sm hover:bg-accent"
       >
         {label}
       </Link>
@@ -159,7 +159,7 @@ export function Pagination({
           })}
           aria-current={value === page ? "page" : undefined}
           className={cn(
-            "flex size-9 items-center justify-center rounded-[10px] border-[3px] text-sm tabular-nums transition-colors",
+            "flex size-9 items-center justify-center rounded-lg border-3 text-sm tabular-nums transition-colors",
             value === page
               ? "border-foreground bg-foreground text-background"
               : "hover:bg-accent",
