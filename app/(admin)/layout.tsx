@@ -56,9 +56,8 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
       items: [
         { href: "/banners", label: "배너 · 편성", icon: "banners", disabled: true },
         {
-          // 설정 묶음에는 자체 화면이 없다. 상위를 누르면 지금 동작하는 유일한
-          // 하위 항목으로 보낸다 (없는 /settings 로 보내면 404 다).
-          href: "/operators",
+          // 자체 화면이 없는 묶음이라 href 를 두지 않는다. 누르면 이동하지 않고
+          // 하위 목록만 열고 닫힌다. 실제 이동은 하위 항목에서.
           label: "운영 설정",
           icon: "settings",
           children: [

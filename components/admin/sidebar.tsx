@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   LuBellRing,
+  LuChevronDown,
   LuChartColumn,
   LuFolder,
   LuImage,
@@ -49,7 +51,11 @@ export type IconName = keyof typeof ICONS;
  */
 
 export type NavItem = {
-  href: string;
+  /**
+   * 자체 화면이 없는 묶음(예: 운영 설정)은 href 를 비운다.
+   * 그러면 눌렀을 때 이동하지 않고 하위 목록만 열고 닫는다.
+   */
+  href?: string;
   label: string;
   icon?: IconName;
   /** 처리 대기 건수. 0 이면 표시하지 않는다. */
@@ -63,7 +69,8 @@ export type NavItem = {
 
 export type NavGroup = { items: NavItem[] };
 
-function isActive(pathname: string, href: string) {
+function isActive(pathname: string, href?: string) {
+  if (!href) return false;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -88,10 +95,29 @@ function NavBadge({ value, tone }: { value: number; tone: "danger" | "info" }) {
   );
 }
 
-function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
+function NavEntry({
+  item,
+  pathname,
+  open,
+  onToggle,
+}: {
+  item: NavItem;
+  pathname: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
   const active = isActive(pathname, item.href);
-  const open = sectionOpen(pathname, item);
   const Icon = item.icon ? ICONS[item.icon] : null;
+  // href 가 없으면 이동 대상이 없으니 열고 닫기만 한다.
+  const toggleOnly = !item.href && Boolean(item.children?.length);
+
+  /*
+   * 강조와 여닫힘은 별개다.
+   * 강조는 "지금 이 구역에 있다"(경로가 정함), 여닫힘은 "목록을 펼쳤다"
+   * (사용자가 정함). 하나로 묶으면 현재 구역에서 접었을 때 내가 어디 있는지
+   * 표시가 통째로 사라진다.
+   */
+  const inSection = sectionOpen(pathname, item);
 
   const inner = (
     <>
@@ -99,9 +125,21 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
         {Icon ? <Icon aria-hidden className="size-4.5 shrink-0" /> : null}
         <span className="truncate">{item.label}</span>
       </span>
-      {item.badge ? (
-        <NavBadge value={item.badge} tone={item.badgeTone ?? "danger"} />
-      ) : null}
+      <span className="flex shrink-0 items-center gap-1.5">
+        {item.badge ? (
+          <NavBadge value={item.badge} tone={item.badgeTone ?? "danger"} />
+        ) : null}
+        {/* 눌러서 여닫는 항목이라는 걸 알려준다. 이동하는 항목에는 붙이지 않는다. */}
+        {toggleOnly ? (
+          <LuChevronDown
+            aria-hidden
+            className={cn(
+              "size-4 transition-transform",
+              open ? "rotate-180" : null,
+            )}
+          />
+        ) : null}
+      </span>
     </>
   );
 
@@ -115,13 +153,27 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
         >
           {inner}
         </span>
+      ) : toggleOnly ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          className={cn(
+            "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
+            inSection
+              ? "bg-foreground font-medium text-background"
+              : "hover:bg-accent",
+          )}
+        >
+          {inner}
+        </button>
       ) : (
         <Link
-          href={item.href}
+          href={item.href!}
           aria-current={active ? "page" : undefined}
           className={cn(
             "flex h-9.5 items-center justify-between rounded-lg px-3 text-sm transition-colors",
-            open
+            inSection
               ? "bg-foreground font-medium text-background"
               : "hover:bg-accent",
           )}
@@ -156,7 +208,7 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
 
             return child.disabled ? (
               <span
-                key={child.href}
+                key={child.label}
                 aria-disabled
                 title="아직 만들지 않은 화면입니다"
                 className="flex h-8.5 cursor-not-allowed items-center pl-6 text-sm text-muted-foreground/50"
@@ -165,8 +217,8 @@ function NavEntry({ item, pathname }: { item: NavItem; pathname: string }) {
               </span>
             ) : (
               <Link
-                key={child.href}
-                href={child.href}
+                key={child.label}
+                href={child.href!}
                 aria-current={childActive ? "page" : undefined}
                 className={cn(
                   "flex h-8.5 items-center rounded-lg pl-6 text-sm transition-colors hover:bg-accent",
@@ -191,6 +243,18 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const initials = operator.name.slice(0, 2);
+
+  /**
+   * 여닫힘은 기본적으로 현재 경로가 정한다 (그 구역에 있으면 열림).
+   * 사용자가 직접 누른 항목만 이 state 에 남아 경로보다 우선한다.
+   */
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+
+  const isOpen = (item: NavItem) =>
+    toggled[item.label] ?? sectionOpen(pathname, item);
+
+  const toggle = (item: NavItem) =>
+    setToggled((prev) => ({ ...prev, [item.label]: !isOpen(item) }));
 
   return (
     /*
@@ -221,7 +285,13 @@ export function Sidebar({
             )}
           >
             {group.items.map((item) => (
-              <NavEntry key={item.href} item={item} pathname={pathname} />
+              <NavEntry
+                key={item.label}
+                item={item}
+                pathname={pathname}
+                open={isOpen(item)}
+                onToggle={() => toggle(item)}
+              />
             ))}
           </div>
         ))}
