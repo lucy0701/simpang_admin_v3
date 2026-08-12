@@ -117,11 +117,13 @@ export const getRolePermissions = cache(
         ? row.permission[0]
         : row.permission;
       if (!permission?.code) return [];
-      return [[permission.code as string, row.effect as PermissionEffect]] as const;
+      return [
+        [permission.code as string, row.effect as PermissionEffect],
+      ] as const;
     });
 
     return new Map(entries);
-  },
+  }
 );
 
 /** 유효한 개인정보 열람 권한(pii_access_grant)이 있는지. */
@@ -149,7 +151,7 @@ const hasActivePiiGrant = cache(async (): Promise<boolean> => {
  */
 async function hasApproval(
   actionType: string,
-  target?: { type: string; id: string },
+  target?: { type: string; id: string }
 ): Promise<boolean> {
   const operator = await getOperator();
   if (!operator) return false;
@@ -179,10 +181,9 @@ async function hasApproval(
  */
 export async function checkPermission(
   permissionCode: string,
-  target?: { type: string; id: string },
+  target?: { type: string; id: string }
 ): Promise<PermissionCheck> {
-  const effect =
-    (await getRolePermissions()).get(permissionCode) ?? "deny";
+  const effect = (await getRolePermissions()).get(permissionCode) ?? "deny";
 
   switch (effect) {
     case "allow":
@@ -218,7 +219,7 @@ export async function checkPermission(
 /** 권한 체크. 예: `await can("content.publish")` */
 export async function can(
   permissionCode: string,
-  target?: { type: string; id: string },
+  target?: { type: string; id: string }
 ): Promise<boolean> {
   return (await checkPermission(permissionCode, target)).allowed;
 }
@@ -226,7 +227,7 @@ export async function can(
 /** 권한이 없으면 사유를 담아 실패시킨다. */
 export async function requirePermission(
   permissionCode: string,
-  target?: { type: string; id: string },
+  target?: { type: string; id: string }
 ): Promise<void> {
   const result = await checkPermission(permissionCode, target);
   if (!result.allowed) {

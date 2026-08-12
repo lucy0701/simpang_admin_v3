@@ -27,27 +27,46 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
   const groups: NavGroup[] = [
     {
       items: [
-        { href: "/dashboard", label: "대시보드" },
+        { href: "/dashboard", label: "대시보드", icon: "dashboard" },
         {
           href: "/contents",
           label: "콘텐츠",
+          icon: "content",
           children: [
             // 지금 만들 수 있는 건 MBTI 뿐이다. content.content_type 의
             // 'psychotest' 가 이것에 해당한다 (enum 값은 스키마 그대로 둔다).
             { href: "/contents/mbti", label: "MBTI" },
           ],
         },
-        { href: "/members", label: "회원" },
-        { href: "/comments", label: "댓글 · 신고", badge: pendingReports },
-        // 대응 테이블이 없어 아직 만들 수 없는 화면들.
-        { href: "/ads", label: "광고 슬롯", disabled: true },
-        { href: "/stats", label: "통계", disabled: true },
+        { href: "/members", label: "회원", icon: "members" },
+        {
+          href: "/comments",
+          label: "댓글 · 신고",
+          icon: "comments",
+          badge: pendingReports,
+          badgeTone: "danger",
+        },
+        // 아래 셋은 대응 테이블이나 화면이 아직 없다.
+        { href: "/rooms", label: "멀티게임 방", icon: "rooms", disabled: true },
+        { href: "/ads", label: "광고 슬롯", icon: "ads", disabled: true },
+        { href: "/stats", label: "통계", icon: "stats", disabled: true },
       ],
     },
     {
       items: [
-        { href: "/operators", label: "권한 · 계정" },
-        { href: "/banners", label: "배너 · 편성", disabled: true },
+        { href: "/banners", label: "배너 · 편성", icon: "banners", disabled: true },
+        {
+          // 설정 묶음에는 자체 화면이 없다. 상위를 누르면 지금 동작하는 유일한
+          // 하위 항목으로 보낸다 (없는 /settings 로 보내면 404 다).
+          href: "/operators",
+          label: "운영 설정",
+          icon: "settings",
+          children: [
+            { href: "/operators", label: "권한 · 계정" },
+            { href: "/settings/audit", label: "활동 로그", disabled: true },
+            { href: "/settings/banned-words", label: "금칙어", disabled: true },
+          ],
+        },
       ],
     },
   ];
@@ -56,7 +75,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
     <div className="flex min-h-full flex-1">
       <Sidebar
         groups={groups}
-        operator={{ name: operator.name, roleName: operator.role?.name ?? null }}
+        operator={{
+          name: operator.name,
+          roleName: operator.role?.name ?? null,
+        }}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
