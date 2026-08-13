@@ -17,23 +17,26 @@ export function LoginForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">이메일</Label>
+        <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           name="email"
           type="email"
           autoComplete="username"
+          placeholder="@example.com"
+          className="py-5"
           required
           aria-invalid={Boolean(state.error)}
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">비밀번호</Label>
+        <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           name="password"
           type="password"
+          className="py-5"
           autoComplete="current-password"
           required
           aria-invalid={Boolean(state.error)}
@@ -46,8 +49,8 @@ export function LoginForm({ next }: { next: string }) {
         </p>
       ) : null}
 
-      <Button type="submit" disabled={pending} className="mt-2">
-        {pending ? "로그인 중…" : "로그인"}
+      <Button type="submit" disabled={pending} className="mt-2 py-6">
+        {pending ? "Logging in…" : "Login"}
       </Button>
     </form>
   );

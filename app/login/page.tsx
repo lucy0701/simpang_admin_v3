@@ -14,9 +14,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <main className="flex flex-1 items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-2xl font-semibold">Playground Admin</h1>
+        <h1 className="mb-1 text-2xl font-semibold">SimPang Admin</h1>
         <p className="mb-8 text-sm text-muted-foreground">
-          운영자 계정으로 로그인하세요.
+          Login as an operator account.
         </p>
         <LoginForm next={redirectTo} />
       </div>

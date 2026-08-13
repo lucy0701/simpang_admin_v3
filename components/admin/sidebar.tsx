@@ -24,6 +24,8 @@ import {
 
 import { cn } from "@/lib/utils";
 
+import { UserMenu } from "./user-menu";
+
 /**
  * 아이콘은 이름으로 받는다.
  *
@@ -323,10 +325,9 @@ export function Sidebar({
   operator,
 }: {
   groups: NavGroup[];
-  operator: { name: string; roleName: string | null };
+  operator: { name: string; email: string; roleName: string | null };
 }) {
   const pathname = usePathname();
-  const initials = operator.name.slice(0, 2);
 
   /**
    * 여닫힘은 기본적으로 현재 경로가 정한다 (그 구역에 있으면 열림).
@@ -396,19 +397,11 @@ export function Sidebar({
       </motion.nav>
 
       {/* 네임카드는 스크롤 영역 밖이라 항상 화면 맨 아래에 남는다. */}
-      <div className="flex shrink-0 items-center gap-2.5 rounded-xl bg-muted p-2.5">
-        <span className="flex size-8 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">
-          {initials}
-        </span>
-        <span className="flex min-w-0 flex-col">
-          <span className="truncate text-[13px] font-medium">
-            {operator.name}
-          </span>
-          <span className="truncate text-[11px] text-muted-foreground">
-            {operator.roleName ?? "역할 미지정"}
-          </span>
-        </span>
-      </div>
+      <UserMenu
+        name={operator.name}
+        email={operator.email}
+        roleName={operator.roleName}
+      />
     </aside>
   );
 }

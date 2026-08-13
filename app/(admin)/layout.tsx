@@ -1,6 +1,4 @@
 import { Sidebar, type NavGroup } from "@/components/admin/sidebar";
-import { Button } from "@/components/ui/button";
-import { logout } from "@/lib/auth/actions";
 import { requireOperator } from "@/lib/auth/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -78,20 +76,13 @@ export default async function AdminLayout({ children }: LayoutProps<"/">) {
         groups={groups}
         operator={{
           name: operator.name,
+          email: operator.email,
           roleName: operator.role?.name ?? null,
         }}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-end border-b-3 px-7 py-3">
-          <form action={logout}>
-            <Button type="submit" variant="ghost" size="sm">
-              로그아웃
-            </Button>
-          </form>
-        </div>
-        <main className="flex flex-1 flex-col gap-6 p-7">{children}</main>
-      </div>
+      {/* 로그아웃은 사이드바 유저 카드 메뉴로 옮겨서 상단 바가 필요 없어졌다. */}
+      <main className="flex min-w-0 flex-1 flex-col gap-6 p-7">{children}</main>
     </div>
   );
 }
