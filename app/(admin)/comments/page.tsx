@@ -70,7 +70,7 @@ export default async function CommentsPage() {
             {reports.map((report) => (
               <li
                 key={report.id}
-                className="flex flex-col gap-3 rounded-xl border-3 p-4"
+                className="flex flex-col gap-3 rounded-xl border p-4"
               >
                 <div className="flex flex-wrap items-center gap-2 text-[13px]">
                   <span className="font-medium">

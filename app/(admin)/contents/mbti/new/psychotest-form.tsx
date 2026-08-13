@@ -186,7 +186,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
 
       <div className="panel flex flex-1 flex-col overflow-hidden">
         {/* ── 상단 바 ── */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b-3 px-5 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <span className="shrink-0 text-[13px] text-muted-foreground">
               콘텐츠 › MBTI ›
@@ -234,7 +234,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
         {/* ── 3열 ── */}
         <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
           {/* 왼쪽: 문항 목록 */}
-          <div className="flex w-full shrink-0 flex-col gap-3 border-b-3 p-4 lg:w-65 lg:border-b-0 lg:border-r-3">
+          <div className="flex w-full shrink-0 flex-col gap-3 border-b p-4 lg:w-65 lg:border-b-0 lg:border-r">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">
                 문항 {questions.length}
@@ -321,10 +321,10 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                   <img
                     src={question.image}
                     alt=""
-                    className="h-32 w-full rounded-xl border-3 border-dashed object-cover"
+                    className="h-32 w-full rounded-xl border border-dashed object-cover"
                   />
                 ) : (
-                  <div className="flex h-32 items-center justify-center rounded-xl border-3 border-dashed text-xs text-muted-foreground">
+                  <div className="flex h-32 items-center justify-center rounded-xl border border-dashed text-xs text-muted-foreground">
                     이미지 URL 을 입력하세요 · 1200×800 권장
                   </div>
                 )}
@@ -340,7 +340,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
 
               <div className="flex flex-col gap-2">
                 <Label>문항 유형</Label>
-                <div className="flex h-9 items-center rounded-lg border-3 px-3 text-sm text-muted-foreground">
+                <div className="flex h-9 items-center rounded-lg border px-3 text-sm text-muted-foreground">
                   선택형 (단일)
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -371,7 +371,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
               {question.answers.map((answer, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 rounded-xl border-3 p-3"
+                  className="flex items-center gap-3 rounded-xl border p-3"
                 >
                   <span className="w-4 shrink-0 text-sm font-semibold text-muted-foreground">
                     {String.fromCharCode(65 + index)}
@@ -421,7 +421,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
           </div>
 
           {/* 오른쪽: 결과 유형 · 공유 카드 · 설정 */}
-          <div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t-3 p-4 lg:w-80 lg:border-t-0 lg:border-l-3">
+          <div className="flex w-full shrink-0 flex-col gap-5 overflow-y-auto border-t p-4 lg:w-80 lg:border-t-0 lg:border-l">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold">
@@ -459,7 +459,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
                       type="button"
                       onClick={() => setActiveType(index)}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-xl border-3 p-3 text-left transition-colors",
+                        "flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors",
                         index === activeType
                           ? "border-foreground"
                           : "hover:bg-accent"
@@ -570,7 +570,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
 
             <div className="flex flex-col gap-2">
               <span className="text-sm font-semibold">공유 카드 미리보기</span>
-              <div className="relative aspect-square overflow-hidden rounded-xl border-3 bg-muted">
+              <div className="relative aspect-square overflow-hidden rounded-xl border bg-muted">
                 {resultTypes[activeType]?.card_image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -616,7 +616,7 @@ export function PsychotestForm({ canPublish }: { canPublish: boolean }) {
               ))}
             </div>
 
-            <div className="flex flex-col gap-3 border-t-3 pt-4">
+            <div className="flex flex-col gap-3 border-t pt-4">
               <span className="text-sm font-semibold">기본 정보</span>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="slug" className="text-xs">
