@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import type { InviteRole } from "@/lib/auth/invite";
 
-import { inviteOperator, type InviteFormState } from "./actions";
+import { inviteOperator, type InviteFormState } from "../actions";
 
 const initialState: InviteFormState = {};
 

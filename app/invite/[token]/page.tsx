@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { findInviteByToken, inviteErrorMessage } from "@/lib/auth/invite";
 
-import { AcceptForm } from "./accept-form";
+import { AcceptForm } from "./_components/accept-form";
 
 export const metadata: Metadata = {
   title: "운영자 초대 · Playground Admin",

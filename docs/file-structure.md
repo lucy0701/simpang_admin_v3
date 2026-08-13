@@ -30,8 +30,8 @@ Client Component 로 만들어야 하는 경우는 정해져 있다.
 페이지 전체를 `"use client"` 로 만들면 그 아래가 전부 클라이언트가 된다. 상호작용이 필요한 부분만 잘라내는 편이 낫다.
 
 ```
-app/(admin)/contents/page.tsx        Server — DB 조회, 권한 확인
-  └ content-table.tsx                Client — 체크박스 선택 상태
+app/(admin)/contents/page.tsx                    Server — DB 조회, 권한 확인
+  └ _components/content-table.tsx                Client — 체크박스 선택 상태
 ```
 
 목록 조회와 권한 판단은 서버에 남고, 체크박스 선택만 클라이언트로 간다.
@@ -67,7 +67,7 @@ app/_internal/helper.ts          →  라우팅에서 제외
 ```
 
 - **`(group)`** — URL 에 영향을 주지 않고 라우트를 묶는다. 이 프로젝트의 `(admin)` 이 그렇다. 로그인이 필요한 화면들이 `(admin)/layout.tsx` 하나를 공유하지만 URL 은 `/dashboard` 다.
-- **`_folder`** — 라우팅에서 통째로 빼는 private 폴더. `app` 안의 파일은 원래 `page`·`route` 가 아니면 라우팅되지 않으므로 필수는 아니고, 의도를 드러내는 용도다.
+- **`_folder`** — 라우팅에서 통째로 빼는 private 폴더. `app` 안의 파일은 원래 `page`·`route` 가 아니면 라우팅되지 않으므로 **필수는 아니지만**, 공식 문서가 드는 용도가 그대로 이 프로젝트에 해당한다: 라우팅 로직과 UI 로직 분리, 에디터에서 정렬·그룹화, 향후 Next 파일 규칙과의 이름 충돌 회피. 이 프로젝트는 라우트 전용 컴포넌트를 전부 `_components/` 에 넣는다.
 
 ---
 
@@ -121,20 +121,24 @@ app/
   not-found.tsx
   login/
     page.tsx                      Server
-    login-form.tsx                Client — 이 화면에서만 쓰므로 여기 둔다
+    _components/login-form.tsx    Client — 이 화면에서만 쓰므로 여기 둔다
   invite/[token]/
-    page.tsx  accept-form.tsx  actions.ts
+    page.tsx  actions.ts
+    _components/accept-form.tsx
   (admin)/                        로그인이 필요한 구역 (URL 에는 안 나옴)
     layout.tsx                    사이드바 + requireOperator() 인가 경계
     dashboard/page.tsx
     contents/
       page.tsx                    전체 목록
-      content-table.tsx           Client — 선택·일괄 처리
-      list-controls.tsx           Server — 검색·필터·페이지네이션
       actions.ts                  Server Action (공개 전환·홈 편성·삭제)
+      _components/
+        content-table.tsx         Client — 선택·일괄 처리
+        list-controls.tsx         Server — 검색·필터·페이지네이션
       mbti/
         page.tsx
-        new/  page.tsx  psychotest-form.tsx  actions.ts
+        new/
+          page.tsx  actions.ts
+          _components/psychotest-form.tsx
     members/  comments/  operators/
 
 components/
@@ -154,11 +158,14 @@ docs/                             이 문서
 
 ### 규칙
 
-**한 화면에서만 쓰면 그 폴더에, 두 곳 이상에서 쓰면 `components/` 로 옮긴다.**
-`login-form.tsx` 는 `/login` 에서만 쓰므로 `app/login/` 에 있다. `page-header.tsx` 는 모든 화면이 쓰므로 `components/admin/` 에 있다.
+**한 화면에서만 쓰면 그 라우트의 `_components/` 에, 두 곳 이상에서 쓰면 `components/` 로 옮긴다.**
+`login-form.tsx` 는 `/login` 에서만 쓰므로 `app/login/_components/` 에 있다. `page-header.tsx` 는 모든 화면이 쓰므로 `components/admin/` 에 있다.
 
-**`actions.ts` 는 쓰는 화면 옆에 둔다.**
-Server Action 은 그 화면의 동작이다. 다만 여러 화면이 공유하면 `lib/auth/actions.ts` 처럼 올린다.
+**파일이 하나뿐이어도 `_components/` 를 쓴다.**
+개수에 따라 규칙이 달라지면 폴더마다 모양이 제각각이 된다. 무엇보다 `page.tsx` 가 항상 폴더 첫 줄에 보인다.
+
+**`actions.ts` 는 `_components/` 밖, 라우트 루트에 둔다.**
+Server Action 은 그리는 코드가 아니라 그 라우트의 동작이다. 보통 하나뿐이라 폴더로 감싸면 경로만 길어진다. 여러 화면이 공유하면 `lib/auth/actions.ts` 처럼 올린다.
 
 **데이터 접근은 `lib/` 안에서만 한다.**
 `lib/data/queries.ts` 와 `lib/auth/dal.ts` 에 `import "server-only"` 가 붙어 있어 클라이언트에서 import 하면 빌드가 깨진다. service_role 키가 브라우저로 새는 경로를 원천 차단한다.
@@ -170,13 +177,16 @@ Server Action 은 그 화면의 동작이다. 다만 여러 화면이 공유하�
 
 ## 파일 이름
 
-프레임워크가 정한 이름(`page`·`layout`·`route`·`actions` 등) 외에는 **kebab-case** 로 쓴다.
+React 생태계에는 두 관례가 모두 표준으로 쓰인다.
 
-```
-content-table.tsx      list-controls.tsx      user-menu.tsx
-```
+| 관례 | 예 | 쓰는 곳 |
+| --- | --- | --- |
+| PascalCase | `ContentTable.tsx` | Create React App 계열, MUI 같은 컴포넌트 라이브러리, Vue·Angular 스타일 가이드 |
+| kebab-case | `content-table.tsx` | shadcn/ui, Next.js 공식 문서 예제 |
 
-컴포넌트 이름은 PascalCase(`ContentTable`), 파일 이름은 kebab-case 다. 대소문자만 다른 파일을 macOS 에서 만들면 git 이 헷갈리는 문제를 피할 수 있다.
+**이 프로젝트는 kebab-case 로 통일한다.** `components/ui/` 를 shadcn 이 kebab-case 로 생성하는데, 여기만 다른 규칙을 두면 한 저장소에 두 관례가 공존한다. `shadcn add` 를 돌릴 때마다 되돌아가므로 그쪽에 맞추는 편이 유지된다.
+
+컴포넌트 이름 자체는 PascalCase(`ContentTable`), 파일 이름만 kebab-case 다.
 
 ---
 

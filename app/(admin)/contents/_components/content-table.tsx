@@ -21,7 +21,7 @@ import {
   bulkFeature,
   bulkPublish,
   type BulkState,
-} from "./actions";
+} from "../actions";
 
 const initialState: BulkState = {};
 

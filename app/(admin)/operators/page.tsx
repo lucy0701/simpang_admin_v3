@@ -21,7 +21,7 @@ import {
 } from "@/lib/data/queries";
 
 import { revoke } from "./actions";
-import { InviteForm } from "./invite-form";
+import { InviteForm } from "./_components/invite-form";
 
 /**
  * 시안의 4-state 매트릭스. 색으로 상태를 구분하되 글자로도 읽히게 한다

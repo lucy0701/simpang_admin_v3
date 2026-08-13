@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { checkPermission, requireOperator } from "@/lib/auth/dal";
 
-import { PsychotestForm } from "./psychotest-form";
+import { PsychotestForm } from "./_components/psychotest-form";
 
 /**
  * 편집기는 자체 상단 바(breadcrumb · 제목 · 저장 버튼)를 갖는 3열 화면이라

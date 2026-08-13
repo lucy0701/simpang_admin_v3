@@ -11,8 +11,8 @@ import {
   listContents,
 } from "@/lib/data/queries";
 
-import { ContentTable } from "./content-table";
-import { ListControls, Pagination } from "./list-controls";
+import { ContentTable } from "./_components/content-table";
+import { ListControls, Pagination } from "./_components/list-controls";
 
 /**
  * 전체 콘텐츠 목록.

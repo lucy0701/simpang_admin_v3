@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-import { createContent, type CreateState } from "./actions";
+import { createContent, type CreateState } from "../actions";
 
 /**
  * 시안의 3열 편집기.

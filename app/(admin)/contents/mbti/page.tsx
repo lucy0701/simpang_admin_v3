@@ -11,8 +11,8 @@ import {
   listContents,
 } from "@/lib/data/queries";
 
-import { ContentTable } from "../content-table";
-import { ListControls, Pagination } from "../list-controls";
+import { ContentTable } from "../_components/content-table";
+import { ListControls, Pagination } from "../_components/list-controls";
 
 /** MBTI 는 content_type 의 psychotest 에 대응한다. */
 const MBTI_TYPES = ["psychotest"];

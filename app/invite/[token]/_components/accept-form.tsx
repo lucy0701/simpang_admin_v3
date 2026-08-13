@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { accept, type AcceptState } from "./actions";
+import { accept, type AcceptState } from "../actions";
 
 const initialState: AcceptState = {};
 
